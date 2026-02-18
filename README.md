@@ -1,2 +1,2 @@
-# Notes-Application
-A semester project for Mobile Application Development using Android and React-Native
+# El-Apunte Backend
+Notes App Backend built using Spring boot and gRPC
