@@ -13,6 +13,7 @@ import org.mockito.MockitoAnnotations;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -34,6 +35,8 @@ class NoteGrpcServiceTest {
     @Mock
     private StreamObserver<Empty> emptyResponseObserver;
 
+    String testId = UUID.randomUUID().toString();
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
@@ -44,12 +47,13 @@ class NoteGrpcServiceTest {
     void testCreateNote() {
         // Arrange
         CreateNoteRequest request = CreateNoteRequest.newBuilder()
+                .setId(testId)
                 .setTitle("Test Note")
                 .setContent("Test Content")
                 .build();
 
         Note savedNote = Note.builder()
-                .id(1)
+                .id(testId)
                 .title("Test Note")
                 .content("Test Content")
                 .formattedDate("2024-01-01T00:00:00Z")
@@ -66,7 +70,7 @@ class NoteGrpcServiceTest {
         verify(noteResponseObserver).onCompleted();
 
         NoteResponse response = responseCaptor.getValue();
-        assertEquals(1, response.getId());
+        assertEquals(testId, response.getId());
         assertEquals("Test Note", response.getTitle());
         assertEquals("Test Content", response.getContent());
         assertNotNull(response.getFormattedDate());
@@ -74,18 +78,19 @@ class NoteGrpcServiceTest {
 
     @Test
     void testGetNote() {
+        String testGetId = UUID.randomUUID().toString();
         // Arrange
         Note note = Note.builder()
-                .id(1)
+                .id(testGetId)
                 .title("Test Note")
                 .content("Test Content")
                 .formattedDate("2024-01-01T00:00:00Z")
                 .build();
 
-        when(noteRepository.findById(1)).thenReturn(Optional.of(note));
+        when(noteRepository.findById(testGetId)).thenReturn(Optional.of(note));
 
         NoteIdRequest request = NoteIdRequest.newBuilder()
-                .setId(1)
+                .setId(note.getId())
                 .build();
 
         // Act
@@ -97,7 +102,7 @@ class NoteGrpcServiceTest {
         verify(noteResponseObserver).onCompleted();
 
         NoteResponse response = responseCaptor.getValue();
-        assertEquals(1, response.getId());
+        assertEquals(testGetId, response.getId());
         assertEquals("Test Note", response.getTitle());
         assertEquals("Test Content", response.getContent());
     }
@@ -106,8 +111,8 @@ class NoteGrpcServiceTest {
     void testGetAllNotes() {
         // Arrange
         List<Note> notes = Arrays.asList(
-                Note.builder().id(1).title("Note 1").content("Content 1").formattedDate("2024-01-01T00:00:00Z").build(),
-                Note.builder().id(2).title("Note 2").content("Content 2").formattedDate("2024-01-02T00:00:00Z").build()
+                Note.builder().id(UUID.randomUUID().toString()).title("Note 1").content("Content 1").formattedDate("2024-01-01T00:00:00Z").build(),
+                Note.builder().id(UUID.randomUUID().toString()).title("Note 2").content("Content 2").formattedDate("2024-01-02T00:00:00Z").build()
         );
 
         when(noteRepository.findAll()).thenReturn(notes);
@@ -130,26 +135,27 @@ class NoteGrpcServiceTest {
 
     @Test
     void testUpdateNote() {
+        String testUpdateId = UUID.randomUUID().toString();
         // Arrange
         Note existingNote = Note.builder()
-                .id(1)
+                .id(testUpdateId)
                 .title("Old Title")
                 .content("Old Content")
                 .formattedDate("2024-01-01T00:00:00Z")
                 .build();
 
         Note updatedNote = Note.builder()
-                .id(1)
+                .id(testUpdateId)
                 .title("Updated Title")
                 .content("Updated Content")
                 .formattedDate("2024-01-02T00:00:00Z")
                 .build();
 
-        when(noteRepository.findById(1)).thenReturn(Optional.of(existingNote));
+        when(noteRepository.findById(testUpdateId)).thenReturn(Optional.of(existingNote));
         when(noteRepository.save(any(Note.class))).thenReturn(updatedNote);
 
         NoteResponse request = NoteResponse.newBuilder()
-                .setId(1)
+                .setId(updatedNote.getId())
                 .setTitle("Updated Title")
                 .setContent("Updated Content")
                 .build();
@@ -163,25 +169,26 @@ class NoteGrpcServiceTest {
         verify(noteResponseObserver).onCompleted();
 
         NoteResponse response = responseCaptor.getValue();
-        assertEquals(1, response.getId());
+        assertEquals(updatedNote.getId(), response.getId());
         assertEquals("Updated Title", response.getTitle());
         assertEquals("Updated Content", response.getContent());
     }
 
     @Test
     void testDeleteNote() {
+        String testDeleteId = UUID.randomUUID().toString();
         // Arrange
         NoteIdRequest request = NoteIdRequest.newBuilder()
-                .setId(1)
+                .setId(testDeleteId)
                 .build();
 
-        doNothing().when(noteRepository).deleteById(1);
+        doNothing().when(noteRepository).deleteById(request.getId());
 
         // Act
         noteGrpcService.deleteNote(request, emptyResponseObserver);
 
         // Assert
-        verify(noteRepository).deleteById(1);
+        verify(noteRepository).deleteById(request.getId());
         verify(emptyResponseObserver).onNext(any(Empty.class));
         verify(emptyResponseObserver).onCompleted();
     }
@@ -189,10 +196,11 @@ class NoteGrpcServiceTest {
     @Test
     void testGetNoteNotFound() {
         // Arrange
-        when(noteRepository.findById(999)).thenReturn(Optional.empty());
+        String randomId = UUID.randomUUID().toString();
+        when(noteRepository.findById(randomId)).thenReturn(Optional.empty());
 
         NoteIdRequest request = NoteIdRequest.newBuilder()
-                .setId(999)
+                .setId(randomId)
                 .build();
 
         // Act & Assert
@@ -204,10 +212,11 @@ class NoteGrpcServiceTest {
     @Test
     void testUpdateNoteNotFound() {
         // Arrange
-        when(noteRepository.findById(999)).thenReturn(Optional.empty());
+        String randomId = UUID.randomUUID().toString();
+        when(noteRepository.findById(randomId)).thenReturn(Optional.empty());
 
         NoteResponse request = NoteResponse.newBuilder()
-                .setId(999)
+                .setId(randomId)
                 .setTitle("Title")
                 .setContent("Content")
                 .build();

@@ -20,10 +20,15 @@ public class NoteGrpcService extends NoteServiceGrpc.NoteServiceImplBase {
 
     @Override
     public void createNote(CreateNoteRequest request, StreamObserver<NoteResponse> responseObserver) {
+        String formattedDate = request.getFormattedDate().isEmpty()
+                ? Instant.now().toString()
+                : request.getFormattedDate();
+
         Note note = Note.builder()
+                .id(request.getId())
                 .title(request.getTitle())
                 .content(request.getContent())
-                .formattedDate(Instant.now().toString())
+                .formattedDate(formattedDate)
                 .build();
 
         Note savedNote = noteRepository.save(note);
