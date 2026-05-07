@@ -1,4 +1,10 @@
-FROM ubuntu:latest
-LABEL authors="thomas"
+# Build stage
+FROM gradle:8.5-jdk17 AS build
+COPY --chown=gradle:gradle . /home/gradle/src
+WORKDIR /home/gradle/src
+RUN gradle build --no-daemon -x test
 
-ENTRYPOINT ["top", "-b"]
+# Package stage
+FROM eclipse-temurin:17-jre-jammy
+COPY --from=build /home/gradle/src/build/libs/*-SNAPSHOT.jar app.jar
+ENTRYPOINT ["java", "-jar", "/app.jar"]
