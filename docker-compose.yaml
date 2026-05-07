@@ -1,0 +1,28 @@
+services:
+  postgres:
+    image: 'postgres:16-alpine'
+    container_name: el-apunte-db
+    environment:
+      - 'POSTGRES_DB=el_apunte_db'
+      - 'POSTGRES_PASSWORD=${SPRING_DATASOURCE_PASSWORD}'
+      - 'POSTGRES_USER=${SPRING_DATASOURCE_USERNAME}'
+    ports:
+      - '5433:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  app:
+    build: .
+    container_name: el-apunte-app
+    ports:
+      - '8081:8081'
+    environment:
+      - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL}
+      - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=${SPRING_JPA_HIBERNATE_DDL_AUTO}
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:

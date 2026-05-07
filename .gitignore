@@ -1,0 +1,28 @@
+# Java
+*.class
+*.jar
+*.war
+*.ear
+
+# Gradle
+.gradle/
+build/
+
+# IDEs
+.idea/
+*.iml
+*.iws
+.vscode/
+.settings/
+.project
+.classpath
+
+# Environment variables and secrets
+.env
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
