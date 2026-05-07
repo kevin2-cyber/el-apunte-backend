@@ -1,13 +1,13 @@
-package com.kimikevin.el_apunte_rest;
+package com.kimikevin.el_apunte;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class ElApunteRestApplication {
+public class ElApunteApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(ElApunteRestApplication.class, args);
+		SpringApplication.run(ElApunteApplication.class, args);
 	}
 
 }

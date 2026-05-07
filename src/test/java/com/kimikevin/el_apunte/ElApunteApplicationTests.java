@@ -1,10 +1,10 @@
-package com.kimikevin.el_apunte_rest;
+package com.kimikevin.el_apunte;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class ElApunteRestApplicationTests {
+class ElApunteApplicationTests {
 
 	@Test
 	void contextLoads() {

@@ -1,7 +1,7 @@
 # Read Me First
 The following was discovered as part of building this project:
 
-* The original package name 'com.kimikevin.el-apunte-rest' is invalid and this project uses 'com.kimikevin.el_apunte_rest' instead.
+* The original package name 'com.kimikevin.el-apunte-rest' is invalid and this project uses 'com.kimikevin.el_apunte' instead.
 
 # Getting Started
 
