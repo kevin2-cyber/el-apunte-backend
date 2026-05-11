@@ -1,10 +1,31 @@
-# Build stage
-FROM gradle:8.5-jdk17 AS build
-COPY --chown=gradle:gradle . /home/gradle/src
-WORKDIR /home/gradle/src
-RUN gradle build --no-daemon -x test
+# --- Stage 1: The Builder (Compiles the Code) ---
+FROM eclipse-temurin:17-jdk-jammy AS builder
+WORKDIR /app
 
-# Package stage
+# 1. Copy Gradle wrapper & settings first (Cached Layer)
+COPY gradlew .
+COPY gradle gradle
+COPY build.gradle.kts .
+COPY settings.gradle.kts .
+
+# 2. Download dependencies (This layer rarely changes)
+RUN ./gradlew dependencies --no-daemon --configuration-cache
+
+# 3. Copy source code & build the JAR
+COPY src src
+RUN ./gradlew bootJar -x test --no-daemon --configuration-cache
+
+# --- Stage 2: The Runtime (Runs the App) ---
 FROM eclipse-temurin:17-jre-jammy
-COPY --from=build /home/gradle/src/build/libs/*-SNAPSHOT.jar app.jar
-ENTRYPOINT ["java", "-jar", "/app.jar"]
+WORKDIR /app
+
+# Create a non-root user (Best practice for security)
+RUN groupadd -r spring && useradd -r -g spring spring
+USER spring:spring
+
+# Copy the built JAR from the builder stage
+COPY --from=builder /app/build/libs/*.jar app.jar
+
+EXPOSE 8081
+
+ENTRYPOINT ["java", "-jar", "app.jar"]
