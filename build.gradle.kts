@@ -20,7 +20,10 @@ repositories {
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-web")
-	developmentOnly("org.springframework.boot:spring-boot-docker-compose")
+	implementation("org.springframework.boot:spring-boot-starter-validation")
+//	implementation("org.springframework.boot:spring-boot-starter-security")
+	implementation("io.github.cdimascio:dotenv-java:3.0.0")
+//	testImplementation("org.springframework.security:spring-security-test")
 	runtimeOnly("org.postgresql:postgresql")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
@@ -28,4 +31,8 @@ dependencies {
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+}
+
+tasks.named<JavaExec>("bootRun") {
+	jvmArgs("-Xmx512m")
 }
