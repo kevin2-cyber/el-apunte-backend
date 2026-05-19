@@ -1,7 +1,9 @@
 services:
   postgres:
-    image: 'postgres:16-alpine'
+    image: 'postgres:17-alpine'
     container_name: el-apunte-db
+    env_file:
+      - .env
     environment:
       - 'POSTGRES_DB=el_apunte_db'
       - 'POSTGRES_PASSWORD=${SPRING_DATASOURCE_PASSWORD}'
@@ -10,19 +12,37 @@ services:
       - '5433:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kimikevin -d el_apunte"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   app:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: el-apunte-app
     ports:
       - '8081:8081'
+    env_file:
+      - .env
     environment:
       - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL}
       - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME}
       - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
       - SPRING_JPA_HIBERNATE_DDL_AUTO=${SPRING_JPA_HIBERNATE_DDL_AUTO}
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
 
+    networks:
+      app-network:
+
+networks:
+  app-network:
+    driver: bridge
 volumes:
   postgres_data:
