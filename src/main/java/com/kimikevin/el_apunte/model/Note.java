@@ -1,5 +1,6 @@
 package com.kimikevin.el_apunte.model;
 
+import com.kimikevin.el_apunte.auth.AppUser;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -13,6 +14,10 @@ public class Note {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    private AppUser user;
     @Column(nullable = false)
     private String title;
     @Column(columnDefinition = "TEXT")
@@ -40,6 +45,14 @@ public class Note {
 
     public void setId(UUID id) {
         this.id = id;
+    }
+
+    public AppUser getUser() {
+        return user;
+    }
+
+    public void setUser(AppUser user) {
+        this.user = user;
     }
 
     public String getTitle() {
