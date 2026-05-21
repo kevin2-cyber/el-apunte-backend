@@ -6,6 +6,7 @@ import com.kimikevin.el_apunte.model.dto.UpdateNoteRequest;
 import com.kimikevin.el_apunte.service.NoteService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,31 +24,42 @@ public class NoteController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED) // Returns 201 Created
-    public NoteResponse createNote(@Valid @RequestBody CreateNoteRequest request) {
-        return noteService.createNote(request);
+    public NoteResponse createNote(
+            @Valid @RequestBody CreateNoteRequest request,
+            Authentication authentication
+    ) {
+        return noteService.createNote(request, authentication.getName());
     }
 
     @GetMapping
-    public List<NoteResponse> getAllNotes() {
+    public List<NoteResponse> getAllNotes(Authentication authentication) {
         // Defaults to returning 200 OK
-        return noteService.getAllNotes();
+        return noteService.getAllNotes(authentication.getName());
     }
 
     @GetMapping("/{id}")
-    public NoteResponse getNoteById(@PathVariable UUID id) {
-        return noteService.getNoteById(id);
+    public NoteResponse getNoteById(
+            @PathVariable UUID id,
+            Authentication authentication
+    ) {
+        return noteService.getNoteById(id, authentication.getName());
     }
 
     @PutMapping("/{id}")
     public NoteResponse updateNote(
             @PathVariable UUID id,
-            @Valid @RequestBody UpdateNoteRequest request) {
-        return noteService.updateNote(id, request);
+            @Valid @RequestBody UpdateNoteRequest request,
+            Authentication authentication
+    ) {
+        return noteService.updateNote(id, request, authentication.getName());
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT) // Returns 204 No Content
-    public void deleteNote(@PathVariable UUID id) {
-        noteService.deleteNote(id);
+    public void deleteNote(
+            @PathVariable UUID id,
+            Authentication authentication
+    ) {
+        noteService.deleteNote(id, authentication.getName());
     }
 }
